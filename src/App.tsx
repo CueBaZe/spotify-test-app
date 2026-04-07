@@ -9,6 +9,8 @@ export default function App() {
         <h1 className='text-center text-6xl font-bold text-green-300'>Spotify test app</h1>
         <input type='text' placeholder='What do you want to lisen to?' className='border-2 border-[#363636] rounded-2xl w-[350px] text-xl text-white p-2'></input> {/* This is the search bar */}
       </div>
+
+      <div> {/* Song box */} </div>
     </section>
   );
 }
