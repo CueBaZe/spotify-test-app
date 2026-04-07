@@ -54,7 +54,7 @@ export default function App() {
     return;
   }
 
-    const safeName = encodeURIComponent(name);
+    const safeName = encodeURIComponent(name); //Gets the search ready for the request
     try {
       const response = await fetch (`https://api.spotify.com/v1/search?q=${safeName}&type=track&limit=9`, {
         method: 'GET',
@@ -65,7 +65,7 @@ export default function App() {
 
       const data = await response.json();
       if (data.tracks && data.tracks.items) {
-        setSongs(data.tracks.items); 
+        setSongs(data.tracks.items); //sets songs to the tracks thats comes with the response
       }
 
     } catch (error) {
@@ -90,8 +90,9 @@ export default function App() {
             {token ? "✅ API Connected" : "❌ Connecting to Spotify..."}
           </p>
           <div className='grid grid-cols-12 text-center gap-[30px] p-4'>
-              {songs.map((song) => (
-                <div className='col-span-4 border border-1 border-[#363636] rounded-lg p-2' key={song.id}>
+              {/* Loops throug the songs and makes the box foreach song */}
+              {songs.map((song) => ( 
+                <div className='flex flex-col col-span-4 items-center border border-1 border-[#363636] rounded-lg p-2' key={song.id}> 
                   <img 
                     src={song.album.images[1]?.url} 
                     alt={song.name} 
