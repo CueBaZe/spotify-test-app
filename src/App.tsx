@@ -21,26 +21,24 @@ export default function App() {
       if (token) return;
 
       const storedToken = window.localStorage.getItem('token');
-      if (storedToken) {
+      if (storedToken) { //checks if you have a token i the localstorage
         setToken(storedToken);
-        console.log(storedToken)
         return;
       }
-      const params = new URLSearchParams(window.location.search);
-      const _code = params.get('code');
+      const params = new URLSearchParams(window.location.search); 
+      const _code = params.get('code'); //gets the code from the link that spotify send back
 
       if (_code) {
       const client_id = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
       try {
         const accessToken = await getAccessToken(client_id, _code);
         
-        if (accessToken) {
+        if (accessToken) { //sets token if it can connect
           setToken(accessToken);
           window.history.replaceState({}, document.title, '/');
         }
       } catch (error) {
-        const fallbackToken = window.localStorage.getItem('token');
-        if (fallbackToken) setToken(fallbackToken);
+        console.log('Failed to swap code for token', error);
       }
     }
 
@@ -49,7 +47,7 @@ export default function App() {
     getData();
   }, [])
 
-  const loginToSpotify = async () => {
+  const loginToSpotify = async () => { //runs when you press login
     const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
       redirectToAuthCodeFlow(clientId);
   }
@@ -64,7 +62,7 @@ export default function App() {
 
     const safeName = encodeURIComponent(name); //Gets the search ready for the request
     try {
-      const response = await fetch (`https://api.spotify.com/v1/search?q=${safeName}&type=track&limit=9`, {
+      const response = await fetch (`https://api.spotify.com/v1/search?q=${safeName}&type=track&limit=9`, { //fetch 9 songs that match the most with the search
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`
