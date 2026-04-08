@@ -1,3 +1,5 @@
+import type { promises } from "node:dns";
+
 export default async function redirectToAuthCodeFlow(clientId: string) {
     const verifer = generateVerifer(128);
     const challenge = await generateCodeChallenge(verifer);
@@ -33,4 +35,24 @@ async function generateCodeChallenge(codeVerifier: string) {
         .replace(/\+/g, '-')
         .replace(/\//g, '_')
         .replace(/=+$/, '');
+}
+
+export async function getAccessToken(client_id: string, code: string): promise<string> {
+    const verifer = window.localStorage.getItem("verifer");
+
+    const params = new URLSearchParams();
+    params.append('client_id', client_id);
+    params.append('grant_type', 'authorization_code');
+    params.append('code', code);
+    params.append('redirect_uri', 'http://127.0.0.1:5173/callback');
+    params.append("code_verifier", verifer!);
+
+    const result = await fetch("https://accounts.spotify.com/api/token", {
+        method: 'POST',
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: params
+    });
+
+    const { access_token } = await result.json();
+    return access_token;
 }
