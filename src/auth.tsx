@@ -1,5 +1,3 @@
-import type { promises } from "node:dns";
-
 export default async function redirectToAuthCodeFlow(clientId: string) {
     const verifer = generateVerifer(128);
     const challenge = await generateCodeChallenge(verifer);
@@ -9,7 +7,7 @@ export default async function redirectToAuthCodeFlow(clientId: string) {
     const params = new URLSearchParams();
     params.append('client_id', clientId);
     params.append('response_type', "code");
-    params.append('redirect_uri', "http://127.0.0.1:5173/callback");
+    params.append('redirect_uri', "http://127.0.0.1:5173");
     params.append('scope', 'streaming user-read-email user-read-private user-modify-playback-state');
     params.append("code_challenge_method", "S256");
     params.append("code_challenge", challenge);
@@ -17,7 +15,7 @@ export default async function redirectToAuthCodeFlow(clientId: string) {
     document.location = `https://accounts.spotify.com/authorize?${params.toString()}`;
 }
 
-function generateVerifer(length: number) {
+function generateVerifer(length: number) {  
     let text = '';
     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -37,22 +35,29 @@ async function generateCodeChallenge(codeVerifier: string) {
         .replace(/=+$/, '');
 }
 
-export async function getAccessToken(client_id: string, code: string): promise<string> {
+export async function getAccessToken(client_id: string, code: string): Promise<string> {
     const verifer = window.localStorage.getItem("verifer");
 
     const params = new URLSearchParams();
     params.append('client_id', client_id);
     params.append('grant_type', 'authorization_code');
     params.append('code', code);
-    params.append('redirect_uri', 'http://127.0.0.1:5173/callback');
+    params.append('redirect_uri', 'http://127.0.0.1:5173');
     params.append("code_verifier", verifer!);
 
     const result = await fetch("https://accounts.spotify.com/api/token", {
         method: 'POST',
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: params
+        body: params.toString()
     });
 
-    const { access_token } = await result.json();
-    return access_token;
+    const data = await result.json();
+
+    if (!result.ok) {
+        console.error("Spotify API Error Object:", data); // THIS WILL TELL YOU WHY IT IS 400
+        return "";
+    }
+
+    localStorage.setItem('token', data.access_token)
+    return data.access_token;
 }

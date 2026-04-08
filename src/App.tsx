@@ -1,5 +1,5 @@
 import { useState, useEffect} from 'react';
-import redirectToAuthCodeFlow from './auth';
+import redirectToAuthCodeFlow, { getAccessToken } from './auth';
 
 interface Song {
   id: string;
@@ -12,38 +12,47 @@ interface Song {
 
 export default function App() {
   const [searchInput, setSearchInput] = useState<string>("");
-  const [token, setToken] = useState<string>(window.localStorage.getItem('token') || "");
+  const [token, setToken] = useState<string>();
   const [songs, setSongs] = useState<Song[]>([]);
 
-  const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-  const code = undefined;
+  useEffect(() => {
+    const getData = async () => {
 
-  if (!code) {
-    redirectToAuthCodeFlow(clientId);
-  } else {
-    const accessToken = 
-  }
+      if (token) return;
 
+      const storedToken = window.localStorage.getItem('token');
+      if (storedToken) {
+        setToken(storedToken);
+        console.log(storedToken)
+        return;
+      }
+      const params = new URLSearchParams(window.location.search);
+      const _code = params.get('code');
 
-  useEffect(() => { //runs on mount
-    const hash = window.location.hash;
-    
-    if (hash) {
-      const _token = hash
-        .substring(1)
-        .split('&')
-        .find(elem => elem.startsWith('access_token'))
-        ?.split('=')[1];
-
-        if (_token) {
-          setToken(_token);
-
-          window.localStorage.setItem('token', _token)
-
-          window.location.hash = '';
+      if (_code) {
+      const client_id = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
+      try {
+        const accessToken = await getAccessToken(client_id, _code);
+        
+        if (accessToken) {
+          setToken(accessToken);
+          window.history.replaceState({}, document.title, '/');
         }
+      } catch (error) {
+        const fallbackToken = window.localStorage.getItem('token');
+        if (fallbackToken) setToken(fallbackToken);
+      }
     }
-  }, []);
+
+    };
+
+    getData();
+  }, [])
+
+  const loginToSpotify = async () => {
+    const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
+      redirectToAuthCodeFlow(clientId);
+  }
 
   const updateSongList = async (name: string) => {
     setSearchInput(name);
@@ -108,9 +117,9 @@ export default function App() {
 
         {!token && (
           <div>
-            <a href={loginUrl}>
+            <button onClick={loginToSpotify}>
               Login
-            </a>
+            </button>
           </div>
         )}
       </div>
