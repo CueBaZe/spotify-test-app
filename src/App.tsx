@@ -54,7 +54,8 @@ export default function App() {
 
   const logout = () => {
     localStorage.removeItem('verifer');
-    localStorage.removeItem('token')
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     setToken('');
   }
 
