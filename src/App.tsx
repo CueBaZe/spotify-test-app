@@ -1,5 +1,5 @@
 import { useState, useEffect} from 'react';
-import redirectToAuthCodeFlow, { getAccessToken } from './auth';
+import redirectToAuthCodeFlow, { getAccessToken, refreshToken } from './auth';
 
 interface Song {
   id: string;
@@ -52,8 +52,28 @@ export default function App() {
       redirectToAuthCodeFlow(clientId);
   }
 
+  const logout = () => {
+    localStorage.removeItem('verifer');
+    localStorage.removeItem('token')
+    setToken('');
+  }
+
+  const isTokenExpired = () => {
+  const expiresAt = localStorage.getItem('expires_at');
+  if (!expiresAt) return true;
+  
+  return Date.now() > (Number(expiresAt) - 60000); 
+};
+
   const updateSongList = async (name: string) => {
     setSearchInput(name);
+    const isExpired = isTokenExpired();
+    
+    if (isExpired) {
+      const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
+      refreshToken(clientId);
+      return;
+    }
 
     if (!token || !name.trim()) {
     setSongs([]);
@@ -75,7 +95,7 @@ export default function App() {
       }
 
     } catch (error) {
-      console.error('Search Failed:', error);
+      console.error('Search Failed:', error); 
     }
   };
 

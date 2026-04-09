@@ -15,6 +15,33 @@ export default async function redirectToAuthCodeFlow(clientId: string) {
     document.location = `https://accounts.spotify.com/authorize?${params.toString()}`; //changes the location to this link
 }
 
+export async function refreshToken(clientId: string): Promise<string | null> {
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    if (!refreshToken) return null;
+
+    const params = new URLSearchParams();
+    params.append('client_id', clientId);
+    params.append('grant_type', 'refresh_token');
+    params.append('refresh_token', refreshToken);
+
+    const result = await fetch("https://accounts.spotify.com/api/token", {
+        method: 'POST',
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: params.toString()
+    });
+
+    const data = await result.json();
+
+    if (data.access_token) {
+        localStorage.setItem('token', data.access_token);
+        if (data.refresh_token) localStorage.setItem('refresh_token', data.refresh_token);
+        return data.access_token;
+    }
+
+    return null;
+}
+
 function generateVerifer(length: number) { //generates the verifer 
     let text = '';
     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -54,5 +81,10 @@ export async function getAccessToken(client_id: string, code: string): Promise<s
     const data = await result.json();
 
     localStorage.setItem('token', data.access_token)
+    localStorage.setItem('refreshToken', data.refresh_token)
+
+    const expiryTime = Date.now() + (data.expires_in * 1000);
+    localStorage.setItem('expires_at', expiryTime.toString());
+
     return data.access_token;
 }
