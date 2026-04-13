@@ -1,6 +1,7 @@
 import { useState, useEffect} from 'react';
 import redirectToAuthCodeFlow, { getAccessToken, refreshToken } from './auth';
 import { IoIosLogOut } from "react-icons/io";
+import { IoIosWarning } from "react-icons/io";
 
 interface Song {
   id: string;
@@ -108,7 +109,7 @@ export default function App() {
         
         {token && (
           <div className="flex flex-col items-center gap-2">
-            <div className='flex flex-row gap-4 w-full'>
+            <div className='flex flex-row gap-4'>
               <div className="w-[40px]" aria-hidden="true"></div> {/* Ghost Spacer with the same witdh as the button */}
               <input 
                 type='text' 
@@ -118,7 +119,7 @@ export default function App() {
                 onChange={(e) => updateSongList(e.target.value)}
               />
 
-              <button onClick={logout} className='w-[40px] hover:cursor-pointer' title='Logout'><IoIosLogOut name='lolosLogOut' className='text-red-400 text-4xl'/></button>
+              <button onClick={logout} className='w-[40px] hover:cursor-pointer' title='Logout'><IoIosLogOut className='text-red-400 text-4xl'/></button>
             </div>
             <p className="text-gray-400 text-sm">
               {token ? "✅ API Connected" : "❌ Connecting to Spotify..."}
@@ -141,9 +142,13 @@ export default function App() {
         )}
 
         {!token && (
-          <div>
-            <button className='bg-green-400 p-2 rounded-lg text-white text-xl font-bold mb-4' onClick={loginToSpotify}>
-              Login
+          <div className='flex flex-col justify-center items-center gap-10'>
+            <div className='flex flex-col text-center items-center w-100 border border-1 border-[#363636] rounded-lg p-2'>        
+              <p className='text-white text-md'>To access this site, you must log in to your Spotify account. Please click on Log In and agree to the application's terms and conditions to continue.</p>
+              <p><IoIosWarning className='text-red-400 text-2xl m-2'/></p>
+            </div>
+            <button className='bg-green-400 w-50 p-2 rounded-lg text-white text-xl font-bold mb-4' onClick={loginToSpotify}>
+              Log in
             </button>
           </div>
         )}
