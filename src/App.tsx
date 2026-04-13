@@ -108,7 +108,8 @@ export default function App() {
         
         {token && (
           <div className="flex flex-col items-center gap-2">
-            <div className='flex flex-row gap-4'>
+            <div className='flex flex-row gap-4 w-full'>
+              <div className="w-[40px]" aria-hidden="true"></div> {/* Ghost Spacer with the same witdh as the button */}
               <input 
                 type='text' 
                 placeholder='What do you want to listen to?' 
@@ -117,7 +118,7 @@ export default function App() {
                 onChange={(e) => updateSongList(e.target.value)}
               />
 
-              <button onClick={logout} className='hover:cursor-pointer' title='Logout'><IoIosLogOut name='lolosLogOut' className='text-red-400 text-4xl'/></button>
+              <button onClick={logout} className='w-[40px] hover:cursor-pointer' title='Logout'><IoIosLogOut name='lolosLogOut' className='text-red-400 text-4xl'/></button>
             </div>
             <p className="text-gray-400 text-sm">
               {token ? "✅ API Connected" : "❌ Connecting to Spotify..."}
