@@ -1,5 +1,6 @@
 import { useState, useEffect} from 'react';
 import redirectToAuthCodeFlow, { getAccessToken, refreshToken } from './auth';
+import { IoIosLogOut } from "react-icons/io";
 
 interface Song {
   id: string;
@@ -107,13 +108,17 @@ export default function App() {
         
         {token && (
           <div className="flex flex-col items-center gap-2">
-            <input 
-              type='text' 
-              placeholder='What do you want to listen to?' 
-              className='border-2 border-[#363636] rounded-2xl w-[350px] text-xl text-white p-2 bg-transparent'
-              value={searchInput}
-              onChange={(e) => updateSongList(e.target.value)}
-            />
+            <div className='flex flex-row gap-4'>
+              <input 
+                type='text' 
+                placeholder='What do you want to listen to?' 
+                className='border-2 border-[#363636] rounded-2xl w-[350px] text-xl text-white p-2 bg-transparent'
+                value={searchInput}
+                onChange={(e) => updateSongList(e.target.value)}
+              />
+
+              <button onClick={logout} className='hover:cursor-pointer' title='Logout'><IoIosLogOut name='lolosLogOut' className='text-red-400 text-4xl'/></button>
+            </div>
             <p className="text-gray-400 text-sm">
               {token ? "✅ API Connected" : "❌ Connecting to Spotify..."}
             </p>
@@ -136,7 +141,7 @@ export default function App() {
 
         {!token && (
           <div>
-            <button onClick={loginToSpotify}>
+            <button className='bg-green-400 p-2 rounded-lg text-white text-xl font-bold mb-4' onClick={loginToSpotify}>
               Login
             </button>
           </div>
