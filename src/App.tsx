@@ -49,6 +49,13 @@ export default function App() {
     return Date.now() > (Number(expiresAt) - 60000); 
   };
 
+  const ifExpired = async () => {
+    const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
+    const result = await refreshToken(clientId);
+    console.log(result);
+    return;
+  }
+
   const fetchProfile = async (token: string) => {
       const result = await fetch('https://api.spotify.com/v1/me', {
         method: 'GET',
@@ -71,15 +78,11 @@ export default function App() {
 
       const isExpired = isTokenExpired();
 
-      if (isExpired) {
-        const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-        refreshToken(clientId);
-        return;
-      }
-
       const storedToken = window.localStorage.getItem('token');
       if (storedToken) { //checks if you have a token i the localstorage
         setToken(storedToken);
+
+        if (isExpired) { ifExpired(); }
 
         const userProfile = await fetchProfile(storedToken);
         setUser(userProfile);
@@ -90,12 +93,15 @@ export default function App() {
 
       if (_code) {
       const client_id = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
+      console.log('test')
       try {
         const accessToken = await getAccessToken(client_id, _code);
         
         if (accessToken) { //sets token if it can connect
           setToken(accessToken);
           window.history.replaceState({}, document.title, '/');
+
+          if (isExpired) { ifExpired(); }
 
           const userProfile = await fetchProfile(accessToken);
           setUser(userProfile);
@@ -126,11 +132,7 @@ export default function App() {
     setSearchInput(name);
     const isExpired = isTokenExpired();
     
-    if (isExpired) {
-      const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-      refreshToken(clientId);
-      return;
-    }
+    if (isExpired) { ifExpired(); }
 
     if (!token || !name.trim()) {
     setSongs([]);
