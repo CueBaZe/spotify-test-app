@@ -12,19 +12,77 @@ interface Song {
   };
 }
 
+interface UserProfile {
+    country: string;
+    display_name: string;
+    email: string;
+    explicit_content: {
+        filter_enabled: boolean,
+        filter_locked: boolean
+    },
+    external_urls: { spotify: string; };
+    followers: { href: string; total: number; };
+    href: string;
+    id: string;
+    images: Image[];
+    product: string;
+    type: string;
+    uri: string;
+}
+
+interface Image {
+    url: string;
+    height: number;
+    width: number;
+}
+
 export default function App() {
   const [searchInput, setSearchInput] = useState<string>("");
   const [token, setToken] = useState<string>();
+  const [user, setUser] = useState<UserProfile[]>([]);
   const [songs, setSongs] = useState<Song[]>([]);
+
+  const isTokenExpired = () => {
+    const expiresAt = localStorage.getItem('expires_at');
+    if (!expiresAt) return true;
+    
+    return Date.now() > (Number(expiresAt) - 60000); 
+  };
+
+  const fetchProfile = async (token: string) => {
+      const result = await fetch('https://api.spotify.com/v1/me', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (result.ok) {
+        return await result.json();
+      }
+
+      return "error";
+  }
 
   useEffect(() => {
     const getData = async () => {
 
       if (token) return;
 
+      const isExpired = isTokenExpired();
+
+      if (isExpired) {
+        const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
+        refreshToken(clientId);
+        return;
+      }
+
       const storedToken = window.localStorage.getItem('token');
       if (storedToken) { //checks if you have a token i the localstorage
         setToken(storedToken);
+
+        const userProfile = await fetchProfile(storedToken);
+        setUser(userProfile);
         return;
       }
       const params = new URLSearchParams(window.location.search); 
@@ -38,6 +96,9 @@ export default function App() {
         if (accessToken) { //sets token if it can connect
           setToken(accessToken);
           window.history.replaceState({}, document.title, '/');
+
+          const userProfile = await fetchProfile(accessToken);
+          setUser(userProfile);
         }
       } catch (error) {
         console.log('Failed to swap code for token', error);
@@ -60,13 +121,6 @@ export default function App() {
     localStorage.removeItem('refreshToken');
     setToken('');
   }
-
-  const isTokenExpired = () => {
-  const expiresAt = localStorage.getItem('expires_at');
-  if (!expiresAt) return true;
-  
-  return Date.now() > (Number(expiresAt) - 60000); 
-};
 
   const updateSongList = async (name: string) => {
     setSearchInput(name);
