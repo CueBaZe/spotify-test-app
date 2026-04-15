@@ -15,6 +15,8 @@ export default async function redirectToAuthCodeFlow(clientId: string) {
     document.location = `https://accounts.spotify.com/authorize?${params.toString()}`; //changes the location to this link
 }
 
+//-------------------------------(REFRESH TOKEN)-----------------------------------------------------------------------------------------------
+
 export async function refreshToken(clientId: string): Promise<string | null> {
     const refreshToken = localStorage.getItem('refreshToken');
 
@@ -54,6 +56,8 @@ export async function refreshToken(clientId: string): Promise<string | null> {
     return null;
 }
 
+//-------------------------------(VERIFER/CODE CHALLENGE)--------------------------------------------------------------------------------------------------------
+
 function generateVerifer(length: number) { //generates the verifer 
     let text = '';
     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -73,6 +77,8 @@ async function generateCodeChallenge(codeVerifier: string) { //generate the code
         .replace(/\//g, '_')
         .replace(/=+$/, '');
 }
+
+//----------------------------(GET ACCESS TOKEN FROM SPOTIFY)------------------------------------------------------------------------------------------------------------------------------------------
 
 export async function getAccessToken(client_id: string, code: string): Promise<string> { 
     const verifer = window.localStorage.getItem("verifer");
@@ -99,4 +105,50 @@ export async function getAccessToken(client_id: string, code: string): Promise<s
     localStorage.setItem('expires_at', expiryTime.toString());
 
     return data.access_token;
+}
+
+//---------------------------(FETCH PROFILE DATA)---------------------------------------------------------------------------------------------------------------
+
+export const fetchProfile = async (token: string) => {
+    const result = await fetch('https://api.spotify.com/v1/me', {
+        method: 'GET',
+        headers: {
+        Authorization: `Bearer ${token}`
+        }
+    });
+
+    if (result.ok) {
+        return await result.json();
+    }
+
+    return "error";
+}
+
+//--------------------------(LOGIN/LOGOUT)--------------------------------------------------------------------------------------------------
+
+export const loginToSpotify = async () => { //runs when you press login
+    const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
+    redirectToAuthCodeFlow(clientId);
+}
+
+export const logout = () => { //runs when you press logout
+    localStorage.removeItem('verifer');
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+}
+
+//---------------------(TOKEN EXPIRED)--------------------------------------------------------------------------------------------------------
+
+export const isTokenExpired = () => {
+    const expiresAt = localStorage.getItem('expires_at');
+    if (!expiresAt) return true;
+
+    return Date.now() > (Number(expiresAt) - 60000); 
+};
+
+export const ifExpired = async () => {
+    const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
+    const result = await refreshToken(clientId);
+    console.log(result);
+    return;
 }

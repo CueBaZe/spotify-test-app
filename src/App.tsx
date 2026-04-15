@@ -1,40 +1,10 @@
 import { useState, useEffect} from 'react';
-import redirectToAuthCodeFlow, { getAccessToken, refreshToken } from './auth';
+import redirectToAuthCodeFlow, { getAccessToken, refreshToken, loginToSpotify, logout, fetchProfile, isTokenExpired, ifExpired } from './auth';
 import { IoIosLogOut } from "react-icons/io";
 import { IoIosWarning } from "react-icons/io";
+import type { Song } from "./interfaces/song";
+import type { UserProfile } from "./interfaces/userProfile";
 
-interface Song {
-  id: string;
-  name: string;
-  artists: { name: string }[];
-  album: {
-    images: { url: string }[];
-  };
-}
-
-interface UserProfile {
-    country: string;
-    display_name: string;
-    email: string;
-    explicit_content: {
-        filter_enabled: boolean,
-        filter_locked: boolean
-    },
-    external_urls: { spotify: string; };
-    followers: { href: string; total: number; };
-    href: string;
-    id: string;
-    images: Image[];
-    product: string;
-    type: string;
-    uri: string;
-}
-
-interface Image {
-    url: string;
-    height: number;
-    width: number;
-}
 
 export default function App() {
   const [searchInput, setSearchInput] = useState<string>("");
@@ -42,34 +12,6 @@ export default function App() {
   const [user, setUser] = useState<UserProfile[]>([]);
   const [songs, setSongs] = useState<Song[]>([]);
 
-  const isTokenExpired = () => {
-    const expiresAt = localStorage.getItem('expires_at');
-    if (!expiresAt) return true;
-    
-    return Date.now() > (Number(expiresAt) - 60000); 
-  };
-
-  const ifExpired = async () => {
-    const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-    const result = await refreshToken(clientId);
-    console.log(result);
-    return;
-  }
-
-  const fetchProfile = async (token: string) => {
-      const result = await fetch('https://api.spotify.com/v1/me', {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-
-      if (result.ok) {
-        return await result.json();
-      }
-
-      return "error";
-  }
 
   useEffect(() => {
     const getData = async () => {
@@ -175,7 +117,7 @@ export default function App() {
                 onChange={(e) => updateSongList(e.target.value)}
               />
 
-              <button onClick={logout} className='w-[40px] hover:cursor-pointer' title='Logout'><IoIosLogOut className='text-red-400 text-4xl'/></button>
+              <button onClick={() => {logout(); setToken('');}} className='w-[40px] hover:cursor-pointer' title='Logout'><IoIosLogOut className='text-red-400 text-4xl'/></button>
             </div>
             <p className="text-gray-400 text-sm">
               {token ? "✅ API Connected" : "❌ Connecting to Spotify..."}
