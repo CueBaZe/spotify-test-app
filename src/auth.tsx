@@ -35,15 +35,19 @@ export async function refreshToken(clientId: string): Promise<string | null> {
 
     if (!result.ok) {
         console.error("Refresh Token Error:", data);
-        // If the refresh token is invalid, the only fix is to log in again
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
+        localStorage.removeItem('expires_at');
         return null;
     }
 
     if (data.access_token) {
+        //update expires_at so i dosen't try to refresh again immediately
+        const expiry_time = Date.now() + (data.expires_in * 1000);
+        localStorage.setItem('expires_at', expiry_time.toString());
+
         localStorage.setItem('token', data.access_token);
-        if (data.refreshToken) localStorage.setItem('refreshToken', data.refresh_token);
+        if (data.refresh_token) localStorage.setItem('refreshToken', data.refresh_token);
         return data.access_token;
     }
 
