@@ -1,5 +1,5 @@
 import { useState, useEffect} from 'react';
-import redirectToAuthCodeFlow, { getAccessToken, refreshToken, loginToSpotify, logout, fetchProfile, isTokenExpired, ifExpired } from './auth';
+import redirectToAuthCodeFlow, { getAccessToken, loginToSpotify, logout, fetchProfile, isTokenExpired, ifExpired } from './auth';
 import { IoIosLogOut } from "react-icons/io";
 import { IoIosWarning } from "react-icons/io";
 import type { Song } from "./interfaces/song";
