@@ -9,7 +9,7 @@ import type { UserProfile } from "./interfaces/userProfile";
 export default function App() {
   const [searchInput, setSearchInput] = useState<string>("");
   const [token, setToken] = useState<string>();
-  const [user, setUser] = useState<UserProfile[]>([]);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [songs, setSongs] = useState<Song[]>([]);
 
 
@@ -104,11 +104,20 @@ export default function App() {
     <section>
       <div className='flex flex-col min-h-screen w-screen bg-[#232423] items-center gap-[50px] pt-10'>
         <h1 className='text-center text-6xl font-bold text-green-300'>Spotify test app</h1>
+        {user && (
+          <div className='absolute top-15 right-25'>
+            <div className='text-center'>
+              <p className='text-white'>{user?.display_name}</p>
+              <p className='text-white'>{user?.email}</p>
+              {/* Logout button */}
+              <button onClick={() => {logout(); setToken('');}} className='w-[40px] hover:cursor-pointer' title='Logout'><IoIosLogOut className='text-red-400 text-4xl'/></button>
+            </div>
+        </div>
+        )}
         
         {token && (
           <div className="flex flex-col items-center gap-2">
             <div className='flex flex-row gap-4'>
-              <div className="w-[40px]" aria-hidden="true"></div> {/* Ghost Spacer with the same witdh as the button */}
               <input 
                 type='text' 
                 placeholder='What do you want to listen to?' 
@@ -116,8 +125,6 @@ export default function App() {
                 value={searchInput}
                 onChange={(e) => updateSongList(e.target.value)}
               />
-
-              <button onClick={() => {logout(); setToken('');}} className='w-[40px] hover:cursor-pointer' title='Logout'><IoIosLogOut className='text-red-400 text-4xl'/></button>
             </div>
             <p className="text-gray-400 text-sm">
               {token ? "✅ API Connected" : "❌ Connecting to Spotify..."}
@@ -145,6 +152,7 @@ export default function App() {
               <p className='text-white text-md'>To access this site, you must log in to your Spotify account. Please click on Log In and agree to the application's terms and conditions to continue.</p>
               <p><IoIosWarning className='text-red-400 text-2xl m-2'/></p>
             </div>
+            {/* Login button */}
             <button className='bg-green-400 w-50 p-2 rounded-lg text-white text-xl font-bold mb-4' onClick={loginToSpotify}>
               Log in
             </button>
