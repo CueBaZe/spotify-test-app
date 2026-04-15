@@ -11,6 +11,7 @@ export default function App() {
   const [token, setToken] = useState<string>();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [songs, setSongs] = useState<Song[]>([]);
+  const [showProfile, setShowProfile] = useState<boolean>(false);
 
 
   useEffect(() => {
@@ -101,18 +102,27 @@ export default function App() {
   };
 
   return (
-    <section>
+    <section className='flex flex-col'>
       <div className='flex flex-col min-h-screen w-screen bg-[#232423] items-center gap-[50px] pt-10'>
         <h1 className='text-center text-6xl font-bold text-green-300'>Spotify test app</h1>
-        {user && (
-          <div className='absolute top-15 right-25'>
-            <div className='text-center'>
-              <p className='text-white'>{user?.display_name}</p>
-              <p className='text-white'>{user?.email}</p>
-              {/* Logout button */}
-              <button onClick={() => {logout(); setToken('');}} className='w-[40px] hover:cursor-pointer' title='Logout'><IoIosLogOut className='text-red-400 text-4xl'/></button>
+        {user && ( 
+            <div className='lg:absolute top-15 right-25'>
+              <div className='relative flex flex-col text-center items-center justify-center z-20'>
+                <a onClick={() => {
+                  setShowProfile(prev => !prev)
+                }}>
+                  <img src={user.images[0].url} alt="Profile picture" className='w-25 h-auto rounded-full border border-1 border-[#363636] hover:border-[#fff]'/>
+                </a>
+                {showProfile && (
+                  <div className='absolute top-30 bg-[#363636] rounded-lg p-2'>
+                    <p className='text-white text-md'>{user?.display_name}</p>
+                    <p className='text-white text-xs'>{user?.email}</p>
+                    {/* Logout button */}
+                    <button onClick={() => {logout(); setToken(''); setUser(null);}} className='w-[40px] hover:cursor-pointer' title='Logout'><IoIosLogOut className='text-red-400 text-4xl'/></button>
+                  </div>
+                )}
+              </div>
             </div>
-        </div>
         )}
         
         {token && (
@@ -121,7 +131,7 @@ export default function App() {
               <input 
                 type='text' 
                 placeholder='What do you want to listen to?' 
-                className='border-2 border-[#363636] rounded-2xl w-[350px] text-xl text-white p-2 bg-transparent'
+                className='border-2 border-[#363636] rounded-2xl w-[250px] text-md lg:w-[350px] lg:text-xl text-white p-2 bg-transparent'
                 value={searchInput}
                 onChange={(e) => updateSongList(e.target.value)}
               />
@@ -132,7 +142,7 @@ export default function App() {
             <div className='grid grid-cols-12 text-center gap-[30px] p-4'>
                 {/* Loops throug the songs and makes the box foreach song */}
                 {songs.map((song) => ( 
-                  <div className='flex flex-col col-span-4 items-center border border-1 border-[#363636] rounded-lg p-2' key={song.id}> 
+                  <div className='flex flex-col col-span-6 lg:col-span-4 items-center border border-1 border-[#363636] rounded-lg p-2' key={song.id}> 
                     <img 
                       src={song.album.images[1]?.url} 
                       alt={song.name} 
