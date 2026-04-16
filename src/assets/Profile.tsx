@@ -1,7 +1,10 @@
-import { IoIosLogOut } from "react-icons/io";
 import type { ProfileProps } from "../interfaces/profileProps";
+import { useState } from "react";
 
-export default function Profile({user, showProfile, setShowProfile, logout, setToken, setUser}: ProfileProps ) { //inherits from ProfileProps 
+export default function Profile({user, logout, setToken, setUser}: ProfileProps ) { //inherits from ProfileProps 
+
+    const [showProfile, setShowProfile] = useState<boolean>(false);
+
     return (
         <div className='lg:absolute top-15 right-25'>
             <div className='relative flex flex-col text-center items-center justify-center z-20'>
@@ -15,7 +18,7 @@ export default function Profile({user, showProfile, setShowProfile, logout, setT
                 <p className='text-white text-md'>{user?.display_name}</p>
                 <p className='text-white text-xs'>{user?.email}</p>
                 {/* Logout button */}
-                <button onClick={() => {logout(); setToken(''); setUser(null);}} className='w-[40px] hover:cursor-pointer' title='Logout'><IoIosLogOut className='text-red-400 text-4xl'/></button>
+                <button onClick={() => {logout(); setToken(''); setUser(null);}} className='text-white text-sm m-2 p-1 inline-block border border-transparent rounded-lg hover:border-[#232423]' title='Logout'>Logout</button>
                 </div>
             )}
             </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect} from 'react';
-import redirectToAuthCodeFlow, { getAccessToken, loginToSpotify, logout, fetchProfile, isTokenExpired, ifExpired } from './auth';
+import redirectToAuthCodeFlow, { getAccessToken, loginToSpotify, logout, fetchProfile, isTokenExpired, ifExpired } from './assets/auth';
 import { IoIosWarning } from "react-icons/io";
 import type { Song } from "./interfaces/song";
 import type { UserProfile } from "./interfaces/userProfile";
@@ -11,8 +11,6 @@ export default function App() {
   const [token, setToken] = useState<string>();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [songs, setSongs] = useState<Song[]>([]);
-  const [showProfile, setShowProfile] = useState<boolean>(false);
-
 
   useEffect(() => {
     const getData = async () => {
@@ -108,8 +106,6 @@ export default function App() {
         {user && ( 
           <Profile //passes down the variables
             user = {user}
-            showProfile={showProfile}
-            setShowProfile={setShowProfile}
             logout={logout}
             setToken={setToken}
             setUser={setUser}
