@@ -137,14 +137,25 @@
                       />
                       <h1 className='text-white font-bold text-xl'>{song.name}</h1>
                       <p className='text-white text-md'>{song.artists[0].name}</p> 
+                      {user?.product !== 'premium' && ( //User dont have premium
+                        <div>
+                          <iframe 
+                            src={`https://open.spotify.com/embed/track/${song.id}`}
+                            width="100%"
+                            height="60%"
+                            loading="lazy"
+                            className='mt-4'
+                          />
+                          <p className='text-white text-sm'>Use system volume to adjust audio</p>
+                        </div>
+                      )}
 
-                      <iframe 
-                        src={`https://open.spotify.com/embed/track/${song.id}`}
-                        width="100%"
-                        height="20%"
-                        loading="lazy"
-                      />
-                      <p className='text-white text-sm'>Use system volume to adjust audio</p>
+                      {user?.product === 'premium' && (
+                        <div>
+                          <p className='text-white m-2'>You have premium</p>
+                        </div>
+                      )}
+
                     </div>
                   ))}
               </div>
