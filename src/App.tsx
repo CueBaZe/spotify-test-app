@@ -1,9 +1,9 @@
 import { useState, useEffect} from 'react';
 import redirectToAuthCodeFlow, { getAccessToken, loginToSpotify, logout, fetchProfile, isTokenExpired, ifExpired } from './auth';
-import { IoIosLogOut } from "react-icons/io";
 import { IoIosWarning } from "react-icons/io";
 import type { Song } from "./interfaces/song";
 import type { UserProfile } from "./interfaces/userProfile";
+import Profile from './assets/Profile';
 
 
 export default function App() {
@@ -106,23 +106,14 @@ export default function App() {
       <div className='flex flex-col min-h-screen w-screen bg-[#232423] items-center gap-[50px] pt-10'>
         <h1 className='text-center text-6xl font-bold text-green-300'>Spotify test app</h1>
         {user && ( 
-            <div className='lg:absolute top-15 right-25'>
-              <div className='relative flex flex-col text-center items-center justify-center z-20'>
-                <a onClick={() => {
-                  setShowProfile(prev => !prev)
-                }}>
-                  <img src={user.images[0].url} alt="Profile picture" className='w-25 h-auto rounded-full border border-1 border-[#363636] hover:border-[#fff]'/>
-                </a>
-                {showProfile && (
-                  <div className='absolute top-30 bg-[#363636] rounded-lg p-2'>
-                    <p className='text-white text-md'>{user?.display_name}</p>
-                    <p className='text-white text-xs'>{user?.email}</p>
-                    {/* Logout button */}
-                    <button onClick={() => {logout(); setToken(''); setUser(null);}} className='w-[40px] hover:cursor-pointer' title='Logout'><IoIosLogOut className='text-red-400 text-4xl'/></button>
-                  </div>
-                )}
-              </div>
-            </div>
+          <Profile //passes down the variables
+            user = {user}
+            showProfile={showProfile}
+            setShowProfile={setShowProfile}
+            logout={logout}
+            setToken={setToken}
+            setUser={setUser}
+          />
         )}
         
         {token && (
