@@ -57,18 +57,6 @@
       getData();
     }, [])
 
-    const loginToSpotify = async () => { //runs when you press login
-      const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-        redirectToAuthCodeFlow(clientId);
-    }
-
-    const logout = () => {
-      localStorage.removeItem('verifer');
-      localStorage.removeItem('token');
-      localStorage.removeItem('refreshToken');
-      setToken('');
-    }
-
     const updateSongList = async (name: string) => {
       setSearchInput(name);
       const isExpired = isTokenExpired();
@@ -82,7 +70,8 @@
 
       const safeName = encodeURIComponent(name); //Gets the search ready for the request
       try {
-        const response = await fetch (`https://api.spotify.com/v1/search?q=${safeName}&type=track&limit=9`, { //fetch 9 songs that match the most with the search
+
+        const response = await fetch (`https://api.spotify.com/v1/search?q=track:${safeName}&type=track&limit=9`, { //fetch 9 songs that match the name
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -128,36 +117,41 @@
               </p>
               <div className='grid grid-cols-12 text-center gap-[30px] p-4'>
                   {/* Loops throug the songs and makes the box foreach song */}
-                  {songs.map((song) => ( 
-                    <div className='flex flex-col col-span-6 lg:col-span-4 items-center border border-1 border-[#363636] rounded-lg p-2' key={song.id}> 
-                      <img 
-                        src={song.album.images[1]?.url} 
-                        alt={song.name} 
-                        className='rounded-xl mb-4'
-                      />
-                      <h1 className='text-white font-bold text-xl'>{song.name}</h1>
-                      <p className='text-white text-md'>{song.artists[0].name}</p> 
-                      {user?.product !== 'premium' && ( //User dont have premium
-                        <div>
-                          <iframe 
-                            src={`https://open.spotify.com/embed/track/${song.id}`}
-                            width="100%"
-                            height="60%"
-                            loading="lazy"
-                            className='mt-4'
-                          />
-                          <p className='text-white text-sm'>Use system volume to adjust audio</p>
-                        </div>
-                      )}
+                  {songs.length > 0 || !searchInput ? (
+                    songs.map((song) => ( 
+                      <div className='flex flex-col col-span-6 lg:col-span-4 items-center border border-1 border-[#363636] rounded-lg p-2' key={song.id}> 
+                        <img 
+                          src={song.album.images[1]?.url} 
+                          alt={song.name} 
+                          className='rounded-xl mb-4'
+                        />
+                        <h1 className='text-white font-bold text-xl'>{song.name}</h1>
+                        <p className='text-white text-md'>{song.artists[0].name}</p> 
+                        {user?.product !== 'premium' && ( //User dont have premium
+                          <div>
+                            <iframe 
+                              src={`https://open.spotify.com/embed/track/${song.id}`}
+                              width="100%"
+                              height="60%"
+                              loading="lazy"
+                              className='mt-4'
+                            />
+                            <p className='text-white text-sm'>Use system volume to adjust audio</p>
+                          </div>
+                        )}
 
-                      {user?.product === 'premium' && (
-                        <div>
-                          <p className='text-white m-2'>You have premium</p>
-                        </div>
-                      )}
+                        {user?.product === 'premium' && (
+                          <div>
+                            <p className='text-white m-2'>You have premium</p>
+                          </div>
+                        )}
 
-                    </div>
-                  ))}
+                      </div>
+                    ))
+                  ) : (
+                    <p className='text-xl w-200 text-red-400 col-span-12'>We couldn’t find any matching songs for your search.</p>
+                  )}
+                  
               </div>
             </div>
           )}
