@@ -8,7 +8,7 @@ export default async function redirectToAuthCodeFlow(clientId: string) {
     params.append('client_id', clientId);
     params.append('response_type', "code");
     params.append('redirect_uri', "http://127.0.0.1:5173"); //Uri that is returns you to on success or failure
-    params.append('scope', 'streaming user-read-email user-read-private user-modify-playback-state'); //permissions the app asks for
+    params.append('scope', 'streaming user-read-email user-read-private user-modify-playback-state user-top-read'); //permissions the app asks for
     params.append("code_challenge_method", "S256");
     params.append("code_challenge", challenge);
 
