@@ -6,7 +6,7 @@ interface Track {
     artists: { name: string }[];
 }
 
-const SongPlayer = ({ token }: { token: string }) =>     {
+const SongPlayer = ({ token, onStateChange }: { token: string, onStateChange: (state: any) => void }) => {
     const [player, setPlayer] = useState<any>(undefined);
     const [is_paused, setPaused] = useState(false);
     const [is_active, setActive] = useState(false);
@@ -30,6 +30,16 @@ const SongPlayer = ({ token }: { token: string }) =>     {
             newPlayer.addListener('ready', ({ device_id }: { device_id: string }) => {
                 console.log('Ready with Device ID', device_id);
                 window.localStorage.setItem('device_id', device_id); 
+            });
+
+            newPlayer.addListener('player_state_changed', (state: any) => {
+                if (!state) return;
+                
+                setTrack(state.track_window.current_track);
+                setPaused(state.paused);
+                setActive(true);
+
+                onStateChange(state);
             });
 
             newPlayer.addListener('player_state_changed', (state: any) => {

@@ -12,6 +12,8 @@
     const [token, setToken] = useState<string>();
     const [user, setUser] = useState<UserProfile | null>(null);
     const [songs, setSongs] = useState<Song[]>([]);
+    const [activeUri, setActiveUri] = useState<string | null>(null);
+    const [isPaused, setIsPaused] = useState<boolean>(true);
 
     useEffect(() => {
       const getData = async () => {
@@ -104,7 +106,7 @@
     }
 
     const pauseSong = async () => {
-      const deviceId = window.localStorage.getItem('spotify_device_id');
+      const deviceId = window.localStorage.getItem('device_id');
   
       if (!deviceId) return;
 
@@ -121,6 +123,11 @@
       }
     }
 
+    const handlePlayerUpdate = (state: any) => {
+      setActiveUri(state.track_window.current_track.uri);
+      setIsPaused(state.paused);
+    };
+
     return (
       <section className='flex flex-col'>
         <div className='flex flex-col min-h-screen w-screen bg-[#232423] items-center gap-[50px] pt-10'>
@@ -136,7 +143,7 @@
           
           {token && (
             <div className="flex flex-col items-center gap-2">
-              <SongPlayer token={token} />
+              <SongPlayer token={token} onStateChange={handlePlayerUpdate}/>
               <div className='flex flex-row gap-4'>
                 <input 
                   type='text' 
@@ -176,11 +183,19 @@
 
                         {user?.product === 'premium' && (
                           <div>
-                            <button
-                              onClick={() => playSong(song.uri)}
-                            >
-                              Play
-                            </button>
+                            {activeUri === song.uri && !isPaused ? (
+                              <button 
+                                onClick={pauseSong}
+                              >
+                                pause
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => playSong(song.uri)}
+                              >
+                                Play
+                              </button>
+                            )}
                           </div>
                         )}
 
