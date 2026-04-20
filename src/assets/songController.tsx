@@ -15,6 +15,8 @@ export const SongController = ({user, searchInput, token, songs}: SongController
     const [activeUri, setActiveUri] = useState<string | null>(null);
     const [isPaused, setIsPaused] = useState<boolean>(true);
 
+//-------------------------------(Play/Pause)-------------------------------------------------------------------------------
+
     const playSong = async (uri: string) => {
         const deviceId = window.localStorage.getItem('device_id');
         if (!deviceId) return;
@@ -47,10 +49,14 @@ export const SongController = ({user, searchInput, token, songs}: SongController
         }
     }
 
+//-------------------------------(Update states)-------------------------------------------------------------------------------
+
     const handlePlayerUpdate = (state: any) => { //gets the states from spotifyPlayer
         setActiveUri(state.track_window.current_track.uri);
         setIsPaused(state.paused);
     };
+
+//-------------------------------(UI)-------------------------------------------------------------------------------
 
     return (
         <div className="w-full">

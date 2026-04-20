@@ -13,6 +13,8 @@
     const [user, setUser] = useState<UserProfile | null>(null);
     const [songs, setSongs] = useState<SongInterface[]>([]);
 
+//-------------------------------(Get token)-------------------------------------------------------------------------------
+
     useEffect(() => {
       const getData = async () => {
 
@@ -58,6 +60,8 @@
       getData();
     }, [])
 
+//-------------------------------(Update songlist)-------------------------------------------------------------------------------
+
     const updateSongList = async (name: string) => {
         setSearchInput(name); 
         const isExpired = isTokenExpired();
@@ -88,6 +92,8 @@
             console.error('Search Failed:', error); 
         }
     };
+
+//-------------------------------(UI)-------------------------------------------------------------------------------
 
     return (
       <section className='flex flex-col'>
