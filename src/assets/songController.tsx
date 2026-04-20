@@ -101,8 +101,8 @@ export const SongController = ({user, searchInput, token, songs}: SongController
 
                         </div>
                     ))
-                    ) : (
-                    <p className='text-xl w-200 text-red-400 col-span-12'>We couldn’t find any matching songs for your search.</p>
+                ) : (
+                    <p className='text-xl text-center w-200 text-red-400 col-span-12'>We couldn’t find any matching songs for your search.</p>
                 )}
             </div>
         </div>

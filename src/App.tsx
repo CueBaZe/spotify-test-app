@@ -59,7 +59,7 @@
     }, [])
 
     const updateSongList = async (name: string) => {
-        setSearchInput(name);
+        setSearchInput(name); 
         const isExpired = isTokenExpired();
         
         if (isExpired) { ifExpired(); }
