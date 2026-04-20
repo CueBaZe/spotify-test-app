@@ -4,6 +4,7 @@
   import type { Song } from "./interfaces/song";
   import type { UserProfile } from "./interfaces/userProfile";
   import Profile from './assets/Profile';
+  import SongPlayer from './assets/player';
 
 
   export default function App() {
@@ -88,6 +89,38 @@
       }
     };
 
+    const playSong = async (uri: string) => {
+      const deviceId = window.localStorage.getItem('device_id');
+      if (!deviceId) return;
+
+      await fetch (`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ uris: [uri] }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+      });
+    }
+
+    const pauseSong = async () => {
+      const deviceId = window.localStorage.getItem('spotify_device_id');
+  
+      if (!deviceId) return;
+
+      try {
+        await fetch(`https://api.spotify.com/v1/me/player/pause?device_id=${deviceId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+        });
+      } catch (error) {
+        console.error("Failed to pause:", error);
+      }
+    }
+
     return (
       <section className='flex flex-col'>
         <div className='flex flex-col min-h-screen w-screen bg-[#232423] items-center gap-[50px] pt-10'>
@@ -103,6 +136,7 @@
           
           {token && (
             <div className="flex flex-col items-center gap-2">
+              <SongPlayer token={token} />
               <div className='flex flex-row gap-4'>
                 <input 
                   type='text' 
@@ -142,7 +176,11 @@
 
                         {user?.product === 'premium' && (
                           <div>
-                            <p className='text-white m-2'>You have premium</p>
+                            <button
+                              onClick={() => playSong(song.uri)}
+                            >
+                              Play
+                            </button>
                           </div>
                         )}
 
