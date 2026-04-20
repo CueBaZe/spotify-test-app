@@ -1,20 +1,17 @@
   import { useState, useEffect} from 'react';
   import redirectToAuthCodeFlow, { getAccessToken, loginToSpotify, logout, fetchProfile, isTokenExpired, ifExpired } from './assets/auth';
   import { IoIosWarning } from "react-icons/io";
-  import { FaPlay, FaPause  } from "react-icons/fa";
-  import type { Song } from "./interfaces/song";
+  import type { SongInterface } from "./interfaces/song";
   import type { UserProfile } from "./interfaces/userProfile";
   import Profile from './assets/Profile';
-  import SongPlayer from './assets/spotifyPlayer';
+  import { SongController } from './assets/songcontroller';
 
 
   export default function App() {
     const [searchInput, setSearchInput] = useState<string>("");
     const [token, setToken] = useState<string>();
     const [user, setUser] = useState<UserProfile | null>(null);
-    const [songs, setSongs] = useState<Song[]>([]);
-    const [activeUri, setActiveUri] = useState<string | null>(null);
-    const [isPaused, setIsPaused] = useState<boolean>(true);
+    const [songs, setSongs] = useState<SongInterface[]>([]);
 
     useEffect(() => {
       const getData = async () => {
@@ -62,71 +59,34 @@
     }, [])
 
     const updateSongList = async (name: string) => {
-      setSearchInput(name);
-      const isExpired = isTokenExpired();
-      
-      if (isExpired) { ifExpired(); }
+        setSearchInput(name);
+        const isExpired = isTokenExpired();
+        
+        if (isExpired) { ifExpired(); }
 
-      if (!token || !name.trim()) {
-      setSongs([]);
-      return;
-    }
-
-      const safeName = encodeURIComponent(name); //Gets the search ready for the request
-      try {
-
-        const response = await fetch (`https://api.spotify.com/v1/search?q=track:${safeName}&type=track&limit=9`, { //fetch 9 songs that match the name
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        const data = await response.json();
-        if (data.tracks && data.tracks.items) {
-          setSongs(data.tracks.items); //sets songs to the tracks thats comes with the response
+        if (!token || !name.trim()) {
+        setSongs([]);
+        return;
         }
 
-      } catch (error) {
-        console.error('Search Failed:', error); 
-      }
-    };
+        const safeName = encodeURIComponent(name); //Gets the search ready for the request
+        try {
 
-    const playSong = async (uri: string) => {
-      const deviceId = window.localStorage.getItem('device_id');
-      if (!deviceId) return;
+            const response = await fetch (`https://api.spotify.com/v1/search?q=track:${safeName}&type=track&limit=9`, { //fetch 9 songs that match the name
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+            });
 
-      await fetch (`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
-        method: 'PUT',
-        body: JSON.stringify({ uris: [uri] }),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-      });
-    }
+            const data = await response.json();
+            if (data.tracks && data.tracks.items) {
+            setSongs(data.tracks.items); //sets songs to the tracks thats comes with the response
+            }
 
-    const pauseSong = async () => {
-      const deviceId = window.localStorage.getItem('device_id');
-  
-      if (!deviceId) return;
-
-      try {
-        await fetch(`https://api.spotify.com/v1/me/player/pause?device_id=${deviceId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-        });
-      } catch (error) {
-        console.error("Failed to pause:", error);
-      }
-    }
-
-    const handlePlayerUpdate = (state: any) => {
-      setActiveUri(state.track_window.current_track.uri);
-      setIsPaused(state.paused);
+        } catch (error) {
+            console.error('Search Failed:', error); 
+        }
     };
 
     return (
@@ -144,7 +104,6 @@
           
           {token && (
             <div className="flex flex-col items-center gap-2">
-              <SongPlayer token={token} onStateChange={handlePlayerUpdate}/>
               <div className='flex flex-row gap-4'>
                 <input 
                   type='text' 
@@ -157,57 +116,9 @@
               <p className="text-gray-400 text-sm">
                 {token ? "✅ API Connected" : "❌ Connecting to Spotify..."}
               </p>
-              <div className='grid grid-cols-12 text-center gap-[30px] p-4'>
+              <div>
                   {/* Loops throug the songs and makes the box foreach song */}
-                  {songs.length > 0 || !searchInput ? (
-                    songs.map((song) => ( 
-                      <div className='flex flex-col col-span-6 lg:col-span-4 items-center border border-1 border-[#363636] rounded-lg p-2' key={song.id}> 
-                        <img 
-                          src={song.album.images[1]?.url} 
-                          alt={song.name} 
-                          className='rounded-xl mb-4'
-                        />
-                        <h1 className='text-white font-bold text-xl'>{song.name}</h1>
-                        <p className='text-white text-md'>{song.artists[0].name}</p> 
-                        {user?.product !== 'premium' && ( //User dont have premium
-                          <div>
-                            <iframe 
-                              src={`https://open.spotify.com/embed/track/${song.id}`}
-                              width="100%"
-                              height="60%"
-                              loading="lazy"
-                              className='mt-4'
-                            />
-                            <p className='text-white text-sm'>Use system volume to adjust audio</p>
-                          </div>
-                        )}
-
-                        {user?.product === 'premium' && (
-                          <div>
-                            {activeUri === song.uri && !isPaused ? (
-                              <button 
-                                onClick={pauseSong}
-                                className='text-white text-xl m-2'
-                              >
-                                <FaPause />
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => playSong(song.uri)}
-                                className='text-white text-xl m-2'
-                              >
-                                <FaPlay />
-                              </button>
-                            )}
-                          </div>
-                        )}
-
-                      </div>
-                    ))
-                  ) : (
-                    <p className='text-xl w-200 text-red-400 col-span-12'>We couldn’t find any matching songs for your search.</p>
-                  )}
-                  
+                  <SongController user={user} songs={songs} searchInput={searchInput} token={token}/> 
               </div>
             </div>
           )}
