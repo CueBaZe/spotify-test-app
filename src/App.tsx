@@ -1,10 +1,11 @@
   import { useState, useEffect} from 'react';
   import redirectToAuthCodeFlow, { getAccessToken, loginToSpotify, logout, fetchProfile, isTokenExpired, ifExpired } from './assets/auth';
   import { IoIosWarning } from "react-icons/io";
+  import { FaPlay, FaPause  } from "react-icons/fa";
   import type { Song } from "./interfaces/song";
   import type { UserProfile } from "./interfaces/userProfile";
   import Profile from './assets/Profile';
-  import SongPlayer from './assets/player';
+  import SongPlayer from './assets/spotifyPlayer';
 
 
   export default function App() {
@@ -186,14 +187,16 @@
                             {activeUri === song.uri && !isPaused ? (
                               <button 
                                 onClick={pauseSong}
+                                className='text-white text-xl m-2'
                               >
-                                pause
+                                <FaPause />
                               </button>
                             ) : (
                               <button
                                 onClick={() => playSong(song.uri)}
+                                className='text-white text-xl m-2'
                               >
-                                Play
+                                <FaPlay />
                               </button>
                             )}
                           </div>
